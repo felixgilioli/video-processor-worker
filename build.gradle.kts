@@ -27,6 +27,7 @@ dependencies {
 	implementation("software.amazon.awssdk:s3:2.25.60")
 	implementation("software.amazon.awssdk:sqs:2.25.60")
 	implementation("software.amazon.awssdk:sns:2.25.60")
+	implementation("org.bytedeco:javacv-platform:1.5.10")
 	testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
