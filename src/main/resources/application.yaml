@@ -1,3 +1,32 @@
+server:
+  port: 8082
+
 spring:
   application:
     name: video-processor-worker
+
+storage:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: videos
+
+sqs:
+  endpoint: http://localhost:4566
+  region: us-east-1
+  access-key: test
+  secret-key: test
+  video-processing-queue: video-processing-queue
+
+sns:
+  endpoint: http://localhost:4566
+  region: us-east-1
+  access-key: test
+  secret-key: test
+  video-completed-topic: video-completed-topic
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
