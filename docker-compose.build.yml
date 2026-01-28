@@ -1,0 +1,4 @@
+services:
+  video-processor-worker:
+    build: .
+    image: felixgilioli/video-processor-worker
