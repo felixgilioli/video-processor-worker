@@ -25,8 +25,20 @@ sns:
   secret-key: test
   video-completed-topic: video-completed-topic
 
+# Actuator - Health checks e Metrics
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  prometheus:
+    metrics:
+      export:
+        enabled: true
