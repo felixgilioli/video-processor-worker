@@ -6,9 +6,10 @@ import br.com.felixgilioli.videoprocessorworker.dto.VideoProcessingMessage
 import br.com.felixgilioli.videoprocessorworker.service.FrameExtractorService
 import br.com.felixgilioli.videoprocessorworker.service.NotificationService
 import br.com.felixgilioli.videoprocessorworker.service.StorageService
-import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.api.trace.Tracer
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
+import io.opentelemetry.context.Context
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -36,16 +37,18 @@ class VideoProcessingConsumer(
             it.queueUrl(getQueueUrl())
                 .maxNumberOfMessages(5)
                 .waitTimeSeconds(10)
-                .messageAttributeNames("traceId")
+                .messageAttributeNames("traceparent")
         }.messages()
 
         messages.forEach { process(it) }
     }
 
     private fun process(message: Message) {
-        val traceId = message.messageAttributes()["traceId"]?.stringValue()
+        val traceparent = message.messageAttributes()["traceparent"]?.stringValue()
+        val context = extractContextFromTraceparent(traceparent)
+
         val span = tracer.spanBuilder("process-video")
-            .setAttribute("traceId.parent", traceId ?: "none")
+            .setParent(context)
             .startSpan()
 
         try {
@@ -86,6 +89,20 @@ class VideoProcessingConsumer(
         } finally {
             span.end()
         }
+    }
+
+    private fun extractContextFromTraceparent(traceparent: String?): Context {
+        if (traceparent == null) return Context.current()
+
+        val propagator = W3CTraceContextPropagator.getInstance()
+        val carrier = mapOf("traceparent" to traceparent)
+
+        val getter = object : io.opentelemetry.context.propagation.TextMapGetter<Map<String, String>> {
+            override fun keys(carrier: Map<String, String>): Iterable<String> = carrier.keys
+            override fun get(carrier: Map<String, String>?, key: String): String? = carrier?.get(key)
+        }
+
+        return propagator.extract(Context.current(), carrier, getter)
     }
 
     private fun extractKeyFromUrl(url: String): String =
