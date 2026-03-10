@@ -12,10 +12,15 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.imageio.ImageIO
 
+data class FrameExtractionResult(
+    val zipBytes: ByteArray,
+    val firstFrameJpg: ByteArray
+)
+
 @Service
 class FrameExtractorService {
 
-    fun extractFramesAndZip(videoBytes: ByteArray, videoId: UUID): ByteArray {
+    fun extractFramesAndZip(videoBytes: ByteArray, videoId: UUID): FrameExtractionResult {
         val tempDir = Files.createTempDirectory("frames-$videoId")
         val videoFile = tempDir.resolve("video.mp4")
         val framesDir = tempDir.resolve("frames")
@@ -24,7 +29,14 @@ class FrameExtractorService {
         try {
             Files.write(videoFile, videoBytes)
             extractFrames(videoFile, framesDir)
-            return createZip(framesDir)
+
+            val sortedFrames = Files.list(framesDir).sorted().toList()
+            val firstFrameJpg = Files.readAllBytes(sortedFrames.first())
+
+            return FrameExtractionResult(
+                zipBytes = createZip(framesDir),
+                firstFrameJpg = firstFrameJpg
+            )
         } finally {
             tempDir.toFile().deleteRecursively()
         }

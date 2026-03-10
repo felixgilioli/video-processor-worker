@@ -59,15 +59,17 @@ class VideoProcessingConsumer(
 
                 val key = extractKeyFromUrl(payload.videoUrl)
                 val videoBytes = storageService.download(key)
-                val zipBytes = frameExtractorService.extractFramesAndZip(videoBytes, payload.videoId)
-                val zipUrl = storageService.upload("zips/${payload.videoId}/frames.zip", zipBytes, "application/zip")
+                val resultExtraction = frameExtractorService.extractFramesAndZip(videoBytes, payload.videoId)
+                val zipUrl = storageService.upload("zips/${payload.videoId}/frames.zip", resultExtraction.zipBytes, "application/zip")
+                val firstFrameUrl = storageService.upload("frames/${payload.videoId}/first_frame.jpg", resultExtraction.firstFrameJpg, "image/jpeg")
 
                 notificationService.publishVideoCompleted(
                     VideoCompletedEvent(
                         videoId = payload.videoId,
                         userId = payload.userId,
                         status = "READY",
-                        zipUrl = zipUrl
+                        zipUrl = zipUrl,
+                        firstFrameUrl = firstFrameUrl
                     )
                 )
 
@@ -83,7 +85,8 @@ class VideoProcessingConsumer(
                     videoId = UUID.randomUUID(),
                     userId = "",
                     status = "FAILED",
-                    zipUrl = null
+                    zipUrl = null,
+                    firstFrameUrl = null
                 )
             )
         } finally {
@@ -106,7 +109,7 @@ class VideoProcessingConsumer(
     }
 
     private fun extractKeyFromUrl(url: String): String =
-        url.substringAfter("/videos/").let { "videos/$it" }
+        url.substringAfter("/videos/")
 
     private fun getQueueUrl(): String =
         sqsClient.getQueueUrl { it.queueName(sqsProperties.videoProcessingQueue) }.queueUrl()
