@@ -14,7 +14,7 @@ RUN chmod +x ./gradlew
 
 RUN ./gradlew bootJar --no-daemon -Dorg.gradle.dependency.verification=off
 
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 COPY --from=build /app/build/libs/*-SNAPSHOT.jar app.jar
