@@ -45,6 +45,8 @@ class StorageService(
             .getObjectRequest { it.bucket(properties.bucket).key(key) }
             .build()
 
-        return s3Presigner.presignGetObject(presignRequest).url().toString()
+        val url = s3Presigner.presignGetObject(presignRequest).url()
+        val endpointHost = java.net.URI(properties.endpoint).authority
+        return url.toString().replace(endpointHost, "localhost")
     }
 }
