@@ -6,24 +6,24 @@ spring:
     name: video-processor-worker
 
 storage:
-  endpoint: http://localhost:9000
-  access-key: minioadmin
-  secret-key: minioadmin
-  bucket: videos
+  endpoint: ${STORAGE_ENDPOINT:http://localhost:9000}
+  access-key: ${STORAGE_ACCESS_KEY:minioadmin}
+  secret-key: ${STORAGE_SECRET_KEY:minioadmin}
+  bucket: ${STORAGE_BUCKET:videos}
 
 sqs:
-  endpoint: http://localhost:4566
-  region: us-east-1
-  access-key: test
-  secret-key: test
-  video-processing-queue: video-processing-queue
+  endpoint: ${SQS_ENDPOINT:http://localhost:4566}
+  region: ${SQS_REGION:us-east-1}
+  access-key: ${SQS_ACCESS_KEY:test}
+  secret-key: ${SQS_SECRET_KEY:test}
+  video-processing-queue: ${SQS_VIDEO_PROCESSING_QUEUE:video-processing-queue}
 
 sns:
-  endpoint: http://localhost:4566
-  region: us-east-1
-  access-key: test
-  secret-key: test
-  video-completed-topic: video-completed-topic
+  endpoint: ${SNS_ENDPOINT:http://localhost:4566}
+  region: ${SNS_REGION:us-east-1}
+  access-key: ${SNS_ACCESS_KEY:test}
+  secret-key: ${SNS_SECRET_KEY:test}
+  video-completed-topic: ${SNS_VIDEO_COMPLETED_TOPIC:video-completed-topic}
 
 # Actuator - Health checks e Metrics
 management:
