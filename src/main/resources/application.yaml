@@ -53,4 +53,4 @@ management:
     tracing:
       export:
         otlp:
-          endpoint: http://localhost:4318/v1/traces
+          endpoint: ${JAEGER_TRACING_URL:http://localhost:4318/v1/traces}
