@@ -46,7 +46,8 @@ class StorageService(
             .build()
 
         val url = s3Presigner.presignGetObject(presignRequest).url()
-        val endpointHost = java.net.URI(properties.endpoint).authority
-        return url.toString().replace(endpointHost, "localhost")
+        val endpointUri = java.net.URI(properties.endpoint)
+        val localhostAuthority = "localhost:${endpointUri.port}"
+        return url.toString().replace(endpointUri.authority, localhostAuthority)
     }
 }
